@@ -1,6 +1,7 @@
-﻿using cAlgo.API;
+using cAlgo.API;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Security;
@@ -8,13 +9,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
-
-using System.Linq;
-using cAlgo.API;
-using cAlgo.API.Indicators;
-using cAlgo.API.Internals;
-using cAlgo.Indicators;
-using System.IO;
 
 /* Changelog
 - Better communication
@@ -32,12 +26,41 @@ ToDo:
 
 namespace cAlgo.Robots
 {
-    //[Serializable]
+    public enum Icon
+    {
+        Ctrader = 20953,
+        GreenArrowMovingUp = 7465,
+        RedArrowMovingDown = 7463,
+        Warning = 7921,
+        Hourglass = 35196,
+        Terminal = 315,
+        Check = 234,
+    }
+
     public class Frame
     {
         public string text { get; set; }
         public int icon { get; set; }
         public int index { get; set; }
+
+        public Frame(Icon icon, string text)
+        {
+            this.icon = (int) icon;
+            this.text = text;
+        }
+    }
+
+    public class Frames : List<Frame>
+    {
+        public string ToJson()
+        {
+            for (var i = 0; i < this.Count; i++)
+            {
+                this[i].index = i;
+            }
+
+            return new JavaScriptSerializer().Serialize(new { frames = this });
+        }
     }
 
     [Robot(TimeZone = TimeZones.UTC, AccessRights = AccessRights.FullAccess)]
@@ -52,7 +75,6 @@ namespace cAlgo.Robots
         // will be used later for Push
         [Parameter("Clock API Token", Group = "BETA - Not used!", DefaultValue = "https://developer.lametric.com/user/devices")]
         public string APIToken { get; set; }
-
 
         [Parameter("Update Clock (20s)", Group = "LaMetric", DefaultValue = 20)]
         public int TimerDelay { get; set; }
@@ -69,204 +91,90 @@ namespace cAlgo.Robots
         [Parameter("Margin Warning Level", Group = "cTrader", DefaultValue = 3000)]
         public int MarginWarning { get; set; }
 
-
- 
         protected override void OnStart()
         {
-             if (DayStart == 0)
+            if (DayStart == 0)
             {
                 DayStart = AccountBalanceAtTime(Time.Date);
             }
 
-
             ServicePointManager.Expect100Continue = false;
-            ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(delegate { return true; });
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
 
             UpdateLaMetric();
 
-            Timer.Start(TimeSpan.FromMilliseconds((TimerDelay*1000)));
+            Timer.Start(TimeSpan.FromMilliseconds((TimerDelay * 1000)));
         }
 
         protected override void OnTick()
         {
- //            UpdateLaMetric();
+            // UpdateLaMetric();
         }
 
-        protected override void OnTimer()
-        {
-             UpdateLaMetric();
-        }
+        protected override void OnTimer() { UpdateLaMetric(); }
 
         protected void UpdateLaMetric()
         {
+            var frames = new Frames();
 
-            // ctrader logo 7463
+            var todayProfit = (RunningEquityProfit ? Account.Equity : Account.Balance) / DayStart * 100 - 100;
+            var unrealizedProfit = Account.Equity / Account.Balance * 100 - 100;
 
-            
-            double PnLEquity =0;
-            if (RunningEquityProfit){
-                PnLEquity = Math.Round(Account.Equity / DayStart * 100 - 100,3);
-            }
-            else {
-                PnLEquity = Math.Round(Account.Balance / DayStart * 100 - 100,3);
-            }
-            
-            var PnLText = Math.Round(PnLEquity, (PnLEquity >10 ? 2:3)) + "%";
-            int PnLIcon = 20953;
-            if (PnLEquity > 0) {
-                PnLIcon = 7465;
-            }
-            if (PnLEquity < 0) {
-                PnLIcon = 7463;
-            }
-            
-            double PnLOEquity = Math.Round(Account.Equity / Account.Balance * 100 - 100, 3);
-            
-            if (Account.Balance != Account.Equity) {
-                var MarginlevelText = "-/-";
-                int MarginlevelIcon = 315;
-
-                if (Account.MarginLevel.HasValue) {
-                    if (Account.MarginLevel.Value < MarginWarning) {
-                        MarginlevelText = Math.Round(Account.MarginLevel.Value,0)+"%";
-                        MarginlevelIcon = 7921;
-                    }
-                    else if (Account.MarginLevel.Value < 10000) {
-                        MarginlevelText = Math.Round(Account.MarginLevel.Value,0)+"%";
-                    }
-                    else {
-                        MarginlevelText = " > 10k";
-                    }
-                }
-                else {
-                    MarginlevelText = "n/a";
-                }                
-
-                var PnLOText = Math.Round(PnLOEquity, (PnLEquity >10 ? 2:3)) + "%";
-                int PnLOIcon = 20953;
-                if (PnLOEquity > 0) {
-                    PnLOIcon = 7465;
-                }
-            
-                if (PnLOEquity < 0) {
-                    PnLOIcon = 7463;
-                }
-
-                if (PnLOEquity > 0)
+            if (Positions.Count > 0)
+            {
+                frames.AddRange(new[]
                 {
-                    PnLOIcon = 7465;
-                }
-    
-                var frames = new[] 
+                    GetMarginFrame(),
+                    new Frame(Icon.Hourglass, "PnL"),
+                    GetValueFrame(unrealizedProfit, true),
+                    new Frame(Icon.Hourglass, "Profit Today"),
+                    GetValueFrame(todayProfit, true),
+                });
+            }
+            else
+            {
+                frames.AddRange(new[]
                 {
-                    new Frame 
-                    {
-                        text = MarginlevelText,
-                        icon = MarginlevelIcon,
-                        index = 0
-                    },
-                    new Frame 
-                    {
-                        text = "PnL",
-                        icon = 35196,
-                        index = 1
-                    },
-                    new Frame
-                    {
-                        text = PnLOText,
-                        icon = PnLOIcon,
-                        index = 2
-                    },
-                    new Frame 
-                    {
-                        text = "Profit TODAY",
-                        icon = 35196,
-                        index = 3
-                    },
-                    new Frame
-                    {
-                        text = PnLText,
-                        icon = PnLIcon,
-                        index = 4
-                    }
-                };
+                    new Frame(Icon.Check, "Profits Today"),
+                    GetValueFrame(todayProfit, true),
+                });
+            }
+
             SendFramesAsync(frames);
-            }
-            else {
-                var PnLOText = Math.Round(PnLOEquity, 3) + "%";
-                int PnLOIcon = 20953;
-                if (PnLOEquity > 0) {
-                    PnLOIcon = 7465;
-                }
-            
-                if (PnLOEquity < 0) {
-                    PnLOIcon = 7463;
-                }
-
-                if (PnLOEquity > 0)
-                {
-                    PnLOIcon = 7465;
-                }
-                if (PnLEquity < 0) {
-                    PnLOIcon = 7463;
-                }
-    
-                var frames = new[] 
-                {
-                    new Frame 
-                    {
-                        text = "Profits TODAY",
-                        icon = 234,
-                        index = 0
-//                        text = MarginlevelText,
-//                        icon = 315,
-//                        index = 0
-                    },
-                    new Frame
-                    {
-                        text = PnLText,
-                        icon = PnLIcon,
-                        index = 1
-                    }
-                };
-            SendFramesAsync(frames);
-                }
-            
         }
 
-        private bool _stop;
-        protected void OnStop()
+        private Frame GetMarginFrame()
         {
+            var text = "-/-";
+            var icon = Icon.Terminal;
 
-            var frames = new[] 
+            if (Account.MarginLevel.HasValue == false) return new Frame(icon, text);
+            if (Account.MarginLevel > 10000)
             {
-            new Frame 
-                {
-                    text = "CTRADER",
-                    icon = 7463,
-                    index = 0
-                }
-            };
-
-            var thread = new Thread(() =>
-            {
-                Thread.Sleep(5000);
-
-                _stop = true;
-            });
-            
-            thread.Start();
-            
-            while (_stop == false)
-            {
-                SendFramesAsync(frames);
-                Thread.Sleep(1000);
-//            int milliseconds = 3500;
-//            System.Threading.Thread.Sleep(milliseconds);
+                text = " > 10k";
             }
-            
+            else
+            {
+                text = Math.Round(Account.MarginLevel.Value, 0) + "%";
+
+                if (Account.MarginLevel < MarginWarning)
+                {
+                    icon = Icon.Warning;
+                }
+            }
+
+            return new Frame(icon, text);
         }
 
+        private static Frame GetValueFrame(double value, bool isPercentage = false)
+        {
+            var icon = value > 0 ? Icon.GreenArrowMovingUp : Icon.RedArrowMovingDown;
+            var text = Math.Round(value, value > 10 ? 2 : 3) + (isPercentage ? "%" : "");
+
+            return new Frame(icon, text);
+        }
+
+        protected override void OnStop() { SendFramesAsync(new Frames { new Frame(Icon.Ctrader, "cTrader") }); }
 
         private double AccountBalanceAtTime(DateTime dt)
         {
@@ -274,31 +182,19 @@ namespace cAlgo.Robots
             return historicalTrade != null ? historicalTrade.Balance : Account.Balance;
         }
 
-        private async Task<HttpResponseMessage> SendFramesAsync(IEnumerable<Frame> frames)
+        private async Task<HttpResponseMessage> SendFramesAsync(Frames frames)
         {
-            var json = new JavaScriptSerializer().Serialize(new 
-            {
-                frames
-            });
-            var request = new HttpRequestMessage 
+            var json = frames.ToJson();
+            var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
                 RequestUri = new Uri(Url),
                 Content = new StringContent(json, Encoding.UTF8, "application/json"),
-                Headers = 
+                Headers =
                 {
-                    {
-                        "Accept",
-                        "application/json"
-                    },
-                    {
-                        "X-Access-Token",
-                        AccessToken
-                    },
-                    {
-                        "Cache-Control",
-                        "no-cache"
-                    }
+                    { "Accept", "application/json" },
+                    { "X-Access-Token", AccessToken },
+                    { "Cache-Control", "no-cache" }
                 }
             };
 
