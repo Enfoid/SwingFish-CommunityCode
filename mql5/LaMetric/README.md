@@ -1,5 +1,5 @@
 this is just a Clone of the cTrader version of LaMetric2cTrader 
-details here: https://github.com/Enfoid/SwingFish-public/tree/master/Code/cAlgo/Robots/LaMetric2cTrader
+details here: https://github.com/Enfoid/SwingFish-CommunityCode/tree/main/cAlgo/Robots/LaMetric2cTrader
 
 Changelog:
 - remove debug placeholder text 
