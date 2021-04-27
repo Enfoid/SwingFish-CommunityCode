@@ -22,6 +22,9 @@ ToDo:
  - better app integration (getting auth to work can be "tricky" for some peoples)
 
 Changes:
+ - code cleanup (by Jiri)
+   - better frame build
+   - duplicates removed
  - actually use the timer (not OnTick)
  - minor fixes)
  - choice to calculate TodaysPnL based on Balance or Equity
