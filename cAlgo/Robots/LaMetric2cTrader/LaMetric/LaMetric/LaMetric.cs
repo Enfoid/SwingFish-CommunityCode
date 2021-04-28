@@ -85,7 +85,7 @@ namespace cAlgo.Robots
         [Parameter("Day Start Balance", Group = "cTrader", DefaultValue = 0)]
         public double DayStart { get; set; }
 
-        [Parameter("Auto select (Balance/Equity) for Today", Group = "cTrader", DefaultValue = true)]
+        [Parameter("Wife Mode (Auto select Balance/Equity) for Today", Group = "cTrader", DefaultValue = true)]
         public bool RunningEquityProfit { get; set; }
 
         [Parameter("Margin Warning Level", Group = "cTrader", DefaultValue = 3000)]
