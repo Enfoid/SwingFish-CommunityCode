@@ -1,4 +1,4 @@
-0.22
+0.23
 LaMetric Time Integration for cTrader
 
 allows the cTrader to show Account & Position informations on the LaMetric Time
@@ -22,6 +22,8 @@ ToDo:
  - better app integration (getting auth to work can be "tricky" for some peoples)
 
 Changes:
+ - change meaning of Equity setting
+   1.24071
  - code cleanup (by Jiri)
    - better frame build
    - duplicates removed

@@ -1,4 +1,4 @@
-using cAlgo.API;
+﻿using cAlgo.API;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -85,7 +85,7 @@ namespace cAlgo.Robots
         [Parameter("Day Start Balance", Group = "cTrader", DefaultValue = 0)]
         public double DayStart { get; set; }
 
-        [Parameter("Running Profit by Equity", Group = "cTrader", DefaultValue = true)]
+        [Parameter("Show higher Profit (Balance/Equity)", Group = "cTrader", DefaultValue = true)]
         public bool RunningEquityProfit { get; set; }
 
         [Parameter("Margin Warning Level", Group = "cTrader", DefaultValue = 3000)]
@@ -119,6 +119,10 @@ namespace cAlgo.Robots
 
             var todayProfit = (RunningEquityProfit ? Account.Equity : Account.Balance) / DayStart * 100 - 100;
             var unrealizedProfit = Account.Equity / Account.Balance * 100 - 100;
+
+            if (RunningEquityProfit && (unrealizedProfit > 0)) {
+                todayProfit = Account.Equity / DayStart * 100 - 100;
+            }
 
             if (Positions.Count > 0)
             {
