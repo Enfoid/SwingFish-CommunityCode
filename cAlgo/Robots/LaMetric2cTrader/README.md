@@ -22,8 +22,9 @@ ToDo:
  - better app integration (getting auth to work can be "tricky" for some peoples)
 
 Changes:
+ - fix "today display"
  - change meaning of Equity setting
-   1.24071
+   Todays PnL selects the highest (Balance or Equity)
  - code cleanup (by Jiri)
    - better frame build
    - duplicates removed
