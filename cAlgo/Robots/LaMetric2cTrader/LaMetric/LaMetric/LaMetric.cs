@@ -86,7 +86,7 @@ namespace cAlgo.Robots
         public double DayStart { get; set; }
 
         [Parameter("Wife Mode (Auto select Balance/Equity) for Today", Group = "cTrader", DefaultValue = true)]
-        public bool RunningEquityProfit { get; set; }
+        public bool WifeMode { get; set; }
 
         [Parameter("Margin Warning Level", Group = "cTrader", DefaultValue = 3000)]
         public int MarginWarning { get; set; }
@@ -121,7 +121,7 @@ namespace cAlgo.Robots
             var todayProfitB = Account.Balance / DayStart * 100 - 100;
             var unrealizedProfit = Account.Equity / Account.Balance * 100 - 100;
 
-            if (RunningEquityProfit && (todayProfit < todayProfitB)) {
+            if (WifeMode && (todayProfit < todayProfitB)) {
                 todayProfit = Account.Balance / DayStart * 100 - 100;
             }
 

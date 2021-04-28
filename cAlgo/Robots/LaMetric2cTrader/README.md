@@ -22,7 +22,7 @@ ToDo:
  - better app integration (getting auth to work can be "tricky" for some peoples)
 
 Changes:
- - wife mode (auto select highest profit)
+ - wife mode (auto select highest profit) .bin
  - fix "today display"
  - change meaning of Equity setting
    Todays PnL selects the highest (Balance or Equity)
