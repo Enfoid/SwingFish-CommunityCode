@@ -22,6 +22,7 @@ ToDo:
  - better app integration (getting auth to work can be "tricky" for some peoples)
 
 Changes:
+ - proper ctrader Icon (ID: 45063)
  - wife mode (auto select highest profit) .bin
  - fix "today display"
  - change meaning of Equity setting

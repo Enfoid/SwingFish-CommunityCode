@@ -28,7 +28,7 @@ namespace cAlgo.Robots
 {
     public enum Icon
     {
-        Ctrader = 20953,
+        Ctrader = 45063,
         GreenArrowMovingUp = 7465,
         RedArrowMovingDown = 7463,
         Warning = 7921,
