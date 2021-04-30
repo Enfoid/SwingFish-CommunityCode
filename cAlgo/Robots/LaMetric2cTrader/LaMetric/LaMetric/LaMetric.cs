@@ -10,17 +10,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 
-/* Changelog
-- Better communication
-- fixed icon issue
-- added margin warning level (shows a different icon when level is crossed)
-- only shows "today" when no position is open
 
-
+/*
 ToDo:
 - send a actual Notification on Margin cross
 - position Notification ?
-- OnStop needs to wait a bit to complete the last transmission .. bot quits too fast last update of the clock does not work
 
 */
 
@@ -38,6 +32,7 @@ namespace cAlgo.Robots
         Hourglass = 35196,
         Terminal = 315,
         Check = 234,
+        Null = 0,
     }
 
     public class Frame
@@ -121,8 +116,20 @@ namespace cAlgo.Robots
             var frames = new Frames();
 
             var todayProfit = Account.Equity / DayStart * 100 - 100;
+            if (Math.Abs(todayProfit) > 9) {
+                todayProfit = Math.Round(todayProfit,2);
+            }
+            else {
+                todayProfit = Math.Round(todayProfit,3);
+            }                
             var todayProfitB = Account.Balance / DayStart * 100 - 100;
             var unrealizedProfit = Account.Equity / Account.Balance * 100 - 100;
+            if (Math.Abs(unrealizedProfit) > 9) {
+                unrealizedProfit = Math.Round(unrealizedProfit,2);
+            }
+            else {
+                unrealizedProfit = Math.Round(unrealizedProfit,3);
+            }                
 
             if (WifeMode && (todayProfit < todayProfitB)) {
                 todayProfit = Account.Balance / DayStart * 100 - 100;
@@ -171,7 +178,12 @@ namespace cAlgo.Robots
                 }
             }
 
-            return new Frame(icon, text);
+            if (ShowMargin) {
+                return new Frame(icon, text);
+            }
+            else {
+                return null; // this does not work !!
+            }
         }
 
         private static Frame GetValueFrame(double value, bool isPercentage = false)

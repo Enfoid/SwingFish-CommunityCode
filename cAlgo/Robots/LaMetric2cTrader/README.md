@@ -16,12 +16,13 @@ get Updates:
 ToDo:
  - send a actual Notification on Margin cross
  - position Notification ?
-   (requires Notification API .. may be a Auth issue)
- - OnStop needs to wait a bit to complete the last transmission ..
-   bot quits too fast last update of the clock does not work
  - better app integration (getting auth to work can be "tricky" for some peoples)
 
 Changes:
+ - Rounding to display larger numbers
+ - try another way for margin settings
+ - small icon changes
+ - OnStop sends cTrader Icon and Text
  - Better icons
  - proper cTrader Icon (ID: 45063)
  - wife mode (auto select highest profit) .bin
