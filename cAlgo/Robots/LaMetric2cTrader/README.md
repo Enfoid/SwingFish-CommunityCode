@@ -1,10 +1,10 @@
-0.23
+0.24
 LaMetric Time Integration for cTrader
 
 allows the cTrader to show Account & Position informations on the LaMetric Time
 
 License:
- - Creative Common "CC BY" - you are REQUIRED to mention me or swingfish.trade if you re-publish this.
+ - Creative Common "CC BY" - you are REQUIRED to mention me or https://www.swingfish.trade if you re-publish this.
 
 Contributions:
  - Mario Hennenberger  https://www.swingfish.trade

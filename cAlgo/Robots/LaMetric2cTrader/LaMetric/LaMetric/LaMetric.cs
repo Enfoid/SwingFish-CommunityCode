@@ -22,12 +22,10 @@ namespace cAlgo.Robots
 {
     public enum Icon
     {
- //       Ctrader = 45063, // Static
-        Ctrader = 45185, // animated
+ //       Ctrader = 45063, // cTrader Logo Static
+        Ctrader = 45185, // cTrader Logo Animated
         GreenArrowMovingUp = 45186,
         RedArrowMovingDown = 45187,
-//        GreenArrowMovingUp = 7465,
-//        RedArrowMovingDown = 7463,
         Warning = 7921,
         Hourglass = 35196,
         Terminal = 315,
@@ -189,7 +187,11 @@ namespace cAlgo.Robots
             return new Frame(icon, text);
         }
 
-        protected override void OnStop() { SendFramesAsync(new Frames { new Frame(Icon.Ctrader, "cTrader") }); }
+        protected override void OnStop()
+        {
+            // send logo to the clock
+            SendFramesAsync(new Frames { new Frame(Icon.Ctrader, "cTrader") });
+        }
 
         private double AccountBalanceAtTime(DateTime dt)
         {
