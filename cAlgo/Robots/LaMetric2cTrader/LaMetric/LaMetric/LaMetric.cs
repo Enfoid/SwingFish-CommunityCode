@@ -116,20 +116,8 @@ namespace cAlgo.Robots
             var frames = new Frames();
 
             var todayProfit = Account.Equity / DayStart * 100 - 100;
-            if (Math.Abs(todayProfit) > 9) {
-                todayProfit = Math.Round(todayProfit,2);
-            }
-            else {
-                todayProfit = Math.Round(todayProfit,3);
-            }                
             var todayProfitB = Account.Balance / DayStart * 100 - 100;
             var unrealizedProfit = Account.Equity / Account.Balance * 100 - 100;
-            if (Math.Abs(unrealizedProfit) > 9) {
-                unrealizedProfit = Math.Round(unrealizedProfit,2);
-            }
-            else {
-                unrealizedProfit = Math.Round(unrealizedProfit,3);
-            }                
 
             if (WifeMode && (todayProfit < todayProfitB)) {
                 todayProfit = Account.Balance / DayStart * 100 - 100;
@@ -137,14 +125,26 @@ namespace cAlgo.Robots
 
             if (Positions.Count > 0)
             {
-                frames.AddRange(new[]
+                if (ShowMargin) { // this is bad code (duplicate, need to figure out a better way to do this
+                    frames.AddRange(new[]
+                    {
+                        GetMarginFrame(),
+                        new Frame(Icon.Hourglass, "PnL"),
+                        GetValueFrame(unrealizedProfit, true),
+                        new Frame(Icon.Hourglass, "Profit Today"),
+                        GetValueFrame(todayProfit, true),
+                    });
+                }
+                else 
                 {
-                    GetMarginFrame(),
-                    new Frame(Icon.Hourglass, "PnL"),
-                    GetValueFrame(unrealizedProfit, true),
-                    new Frame(Icon.Hourglass, "Profit Today"),
-                    GetValueFrame(todayProfit, true),
-                });
+                    frames.AddRange(new[]
+                    {
+                        new Frame(Icon.Hourglass, "PnL"),
+                        GetValueFrame(unrealizedProfit, true),
+                        new Frame(Icon.Hourglass, "Profit Today"),
+                        GetValueFrame(todayProfit, true),
+                    });
+                }
             }
             else
             {
@@ -178,18 +178,13 @@ namespace cAlgo.Robots
                 }
             }
 
-            if (ShowMargin) {
-                return new Frame(icon, text);
-            }
-            else {
-                return null; // this does not work !!
-            }
+            return new Frame(icon, text);
         }
 
         private static Frame GetValueFrame(double value, bool isPercentage = false)
         {
             var icon = value > 0 ? Icon.GreenArrowMovingUp : Icon.RedArrowMovingDown;
-            var text = Math.Round(value, value > 10 ? 2 : 3) + (isPercentage ? "%" : "");
+            var text = Math.Round(value, Math.Abs(value) > 9 ? 2 : 3) + (isPercentage ? "%" : "");
 
             return new Frame(icon, text);
         }
