@@ -75,9 +75,6 @@ namespace cAlgo.Robots
         [Parameter("Update Clock (20s)", Group = "LaMetric", DefaultValue = 20)]
         public int TimerDelay { get; set; }
 
-        [Parameter("Show Margin", Group = "BETA - Not used!", DefaultValue = true)]
-        public bool ShowMargin { get; set; }
-
         [Parameter("Day Start Balance", Group = "cTrader", DefaultValue = 0)]
         public double DayStart { get; set; }
 
@@ -86,6 +83,9 @@ namespace cAlgo.Robots
 
         [Parameter("Margin Warning Level", Group = "cTrader", DefaultValue = 3000)]
         public int MarginWarning { get; set; }
+
+        [Parameter("Always Show Margin", Group = "cTrader", DefaultValue = true)]
+        public bool ShowMargin { get; set; }
 
         protected override void OnStart()
         {
@@ -123,26 +123,11 @@ namespace cAlgo.Robots
 
             if (Positions.Count > 0)
             {
-                if (ShowMargin) { // this is bad code (duplicate, need to figure out a better way to do this
-                    frames.AddRange(new[]
-                    {
-                        GetMarginFrame(),
-                        new Frame(Icon.Hourglass, "PnL"),
-                        GetValueFrame(unrealizedProfit, true),
-                        new Frame(Icon.Hourglass, "Profit Today"),
-                        GetValueFrame(todayProfit, true),
-                    });
-                }
-                else 
-                {
-                    frames.AddRange(new[]
-                    {
-                        new Frame(Icon.Hourglass, "PnL"),
-                        GetValueFrame(unrealizedProfit, true),
-                        new Frame(Icon.Hourglass, "Profit Today"),
-                        GetValueFrame(todayProfit, true),
-                    });
-                }
+                if ((ShowMargin) || (Account.MarginLevel.Value < MarginWarning)) { frames.Add(GetMarginFrame()); }
+                frames.Add(GetTextFrame(Icon.Hourglass, "PnL"));
+                frames.Add(GetValueFrame(unrealizedProfit, true));
+                frames.Add(GetTextFrame(Icon.Hourglass, "Profit Today"));
+                frames.Add(GetValueFrame(todayProfit, true));
             }
             else
             {
@@ -154,6 +139,10 @@ namespace cAlgo.Robots
             }
 
             SendFramesAsync(frames);
+        }
+
+        private Frame GetTextFrame(Icon icon, string text) {
+            return new Frame(icon, text);
         }
 
         private Frame GetMarginFrame()

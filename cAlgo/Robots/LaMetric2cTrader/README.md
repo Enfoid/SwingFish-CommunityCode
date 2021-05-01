@@ -19,6 +19,7 @@ ToDo:
  - better app integration (getting auth to work can be "tricky" for some peoples)
 
 Changes:
+ - show margin and margin warning fixed
  - temp workaround for "show margin" setting (this needs to be smarter)
  - remove duplicate rounding (round negative values too)
  - Rounding to display larger numbers
