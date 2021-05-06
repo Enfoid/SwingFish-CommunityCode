@@ -72,6 +72,9 @@ namespace cAlgo.Robots
         [Parameter("Clock API Token", Group = "BETA - Not used!", DefaultValue = "https://developer.lametric.com/user/devices")]
         public string APIToken { get; set; }
 
+        [Parameter("Show position details", Group = "BETA - Not used!", DefaultValue = true)]
+        public bool ShowPositions { get; set; }
+
         [Parameter("Update Clock (20s)", Group = "LaMetric", DefaultValue = 20)]
         public int TimerDelay { get; set; }
 
@@ -126,16 +129,20 @@ namespace cAlgo.Robots
                 if ((ShowMargin) || (Account.MarginLevel.Value < MarginWarning)) { frames.Add(GetMarginFrame()); }
                 frames.Add(GetTextFrame(Icon.Hourglass, "PnL"));
                 frames.Add(GetValueFrame(unrealizedProfit, true));
+                // if (ShowPositions) 
+                // show buy/sell what
+                frames.Add(GetTextFrame(Icon.Hourglass, "Profit Today"));
                 frames.Add(GetTextFrame(Icon.Hourglass, "Profit Today"));
                 frames.Add(GetValueFrame(todayProfit, true));
             }
             else
             {
-                frames.AddRange(new[]
-                {
-                    new Frame(Icon.Check, "Profits Today"),
-                    GetValueFrame(todayProfit, true),
-                });
+                if (todayProfit >0) {
+                    frames.Add(GetTextFrame(Icon.Hourglass, "Profits Today"));
+                }else {
+                    frames.Add(GetTextFrame(Icon.Hourglass, "Todays Losses"));
+                }
+                frames.Add(GetValueFrame(todayProfit, true));
             }
 
             SendFramesAsync(frames);
