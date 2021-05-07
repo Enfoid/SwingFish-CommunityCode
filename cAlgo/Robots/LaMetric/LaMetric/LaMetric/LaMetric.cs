@@ -26,6 +26,7 @@ namespace cAlgo.Robots
         Ctrader = 45185, // cTrader Logo Animated
         GreenArrowMovingUp = 45186,
         RedArrowMovingDown = 45187,
+        Arrows = 20953,
         Warning = 7921,
         Hourglass = 35196,
         Terminal = 315,
@@ -131,16 +132,15 @@ namespace cAlgo.Robots
                 frames.Add(GetValueFrame(unrealizedProfit, true));
                 // if (ShowPositions) 
                 // show buy/sell what
-                frames.Add(GetTextFrame(Icon.Hourglass, "Profit Today"));
-                frames.Add(GetTextFrame(Icon.Hourglass, "Profit Today"));
+                frames.Add(GetTextFrame(Icon.Arrows, "Profit Today"));
                 frames.Add(GetValueFrame(todayProfit, true));
             }
             else
             {
                 if (todayProfit >0) {
-                    frames.Add(GetTextFrame(Icon.Hourglass, "Profits Today"));
+                    frames.Add(GetTextFrame(Icon.Arrows, "Profits Today"));
                 }else {
-                    frames.Add(GetTextFrame(Icon.Hourglass, "Todays Losses"));
+                    frames.Add(GetTextFrame(Icon.Arrows, "Todays Losses"));
                 }
                 frames.Add(GetValueFrame(todayProfit, true));
             }

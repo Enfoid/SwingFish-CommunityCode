@@ -19,6 +19,8 @@ ToDo:
  - better app integration (getting auth to work can be "tricky" for some peoples)
 
 Changes:
+ - remove duplicated "todays Profits"
+ - add "arrows" Icon
  - use the word "loss" on daily stats
  - show margin and margin warning fixed
  - temp workaround for "show margin" setting (this needs to be smarter)
