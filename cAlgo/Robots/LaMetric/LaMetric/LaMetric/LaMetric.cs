@@ -132,7 +132,7 @@ namespace cAlgo.Robots
                 frames.Add(GetValueFrame(unrealizedProfit, true));
                 // if (ShowPositions) 
                 // show buy/sell what
-                frames.Add(GetTextFrame(Icon.Arrows, "Profit Today"));
+                frames.Add(GetTextFrame(Icon.Null, "Today"));
                 frames.Add(GetValueFrame(todayProfit, true));
             }
             else

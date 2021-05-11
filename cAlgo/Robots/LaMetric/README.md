@@ -1,4 +1,4 @@
-0.24
+0.24.1
 LaMetric Time Integration for cTrader
 
 allows the cTrader to show Account & Position informations on the LaMetric Time
@@ -19,6 +19,7 @@ ToDo:
  - better app integration (getting auth to work can be "tricky" for some peoples)
 
 Changes:
+ - remove the word "Profit" on todays display
  - remove duplicated "todays Profits"
  - add "arrows" Icon
  - use the word "loss" on daily stats
