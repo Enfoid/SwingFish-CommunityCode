@@ -70,10 +70,10 @@ namespace cAlgo.Robots
         public string AccessToken { get; set; }
 
         // will be used later for Push
-        [Parameter("Clock API Token", Group = "BETA - Not used!", DefaultValue = "https://developer.lametric.com/user/devices")]
+        [Parameter("Clock API Token", Group = "BETA - DO NOT USE IN Production!", DefaultValue = "https://developer.lametric.com/user/devices")]
         public string APIToken { get; set; }
 
-        [Parameter("Show position details", Group = "BETA - Not used!", DefaultValue = true)]
+        [Parameter("Show position details", Group = "BETA - DO NOT USE IN Production!", DefaultValue = true)]
         public bool ShowPositions { get; set; }
 
         [Parameter("Update Clock (20s)", Group = "LaMetric", DefaultValue = 20)]
@@ -100,15 +100,16 @@ namespace cAlgo.Robots
 
             ServicePointManager.Expect100Continue = false;
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+            ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
 
             UpdateLaMetric();
 
             Timer.Start(TimeSpan.FromMilliseconds((TimerDelay * 1000)));
         }
 
-        protected override void OnTick()
+        protected override void OnBar()
         {
-            // UpdateLaMetric();
+            UpdateLaMetric();
         }
 
         protected override void OnTimer() { UpdateLaMetric(); }
@@ -128,19 +129,21 @@ namespace cAlgo.Robots
             if (Positions.Count > 0)
             {
                 if ((ShowMargin) || (Account.MarginLevel.Value < MarginWarning)) { frames.Add(GetMarginFrame()); }
-                frames.Add(GetTextFrame(Icon.Hourglass, "PnL"));
+ //               frames.Add(GetTextFrame(Icon.Hourglass, "PnL"));
+ //               frames.Add(GetValueFrame(unrealizedProfit, true));
+ //               frames.Add(GetTextFrame(Icon.Hourglass, "PnL"));
                 frames.Add(GetValueFrame(unrealizedProfit, true));
                 // if (ShowPositions) 
                 // show buy/sell what
-                frames.Add(GetTextFrame(Icon.Null, "Today"));
-                frames.Add(GetValueFrame(todayProfit, true));
+ //               frames.Add(GetTextFrame(Icon.Null, "Session"));
+ //               frames.Add(GetValueFrame(todayProfit, true));
             }
             else
             {
-                if (todayProfit >0) {
-                    frames.Add(GetTextFrame(Icon.Arrows, "Profits Today"));
+                if (todayProfit >=0) {
+                    frames.Add(GetTextFrame(Icon.Arrows, "Session Profits"));
                 }else {
-                    frames.Add(GetTextFrame(Icon.Arrows, "Todays Losses"));
+                    frames.Add(GetTextFrame(Icon.Arrows, "Session Losses"));
                 }
                 frames.Add(GetValueFrame(todayProfit, true));
             }
@@ -177,7 +180,7 @@ namespace cAlgo.Robots
 
         private static Frame GetValueFrame(double value, bool isPercentage = false)
         {
-            var icon = value > 0 ? Icon.GreenArrowMovingUp : Icon.RedArrowMovingDown;
+            var icon = value >= 0 ? Icon.GreenArrowMovingUp : Icon.RedArrowMovingDown;
             var text = Math.Round(value, Math.Abs(value) > 9 ? 2 : 3) + (isPercentage ? "%" : "");
 
             return new Frame(icon, text);
@@ -186,7 +189,7 @@ namespace cAlgo.Robots
         protected override void OnStop()
         {
             // send logo to the clock
-            SendFramesAsync(new Frames { new Frame(Icon.Ctrader, "cTrader") });
+ //           SendFramesAsync(new Frames { new Frame(Icon.Ctrader, "cTrader") });
         }
 
         private double AccountBalanceAtTime(DateTime dt)
@@ -211,8 +214,12 @@ namespace cAlgo.Robots
                 }
             };
 
-            using (var client = new HttpClient())
+            var httpClientHandler = new HttpClientHandler();
+                httpClientHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+        
+            using (var client = new HttpClient(httpClientHandler))
             {
+                ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
                 return await client.SendAsync(request);
             }
         }
