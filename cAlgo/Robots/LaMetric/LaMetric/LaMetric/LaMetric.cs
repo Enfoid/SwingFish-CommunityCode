@@ -234,10 +234,9 @@ namespace cAlgo.Robots
             var text = "";
             var icon = value >= 0 ? Icon.GreenArrowMovingUp : Icon.RedArrowMovingDown;
             if (isPercentage) {
-                text = (isPercentage ? "" : "$") + Math.Round(value, Math.Abs(value) > 9 ? 2 : 3) + (isPercentage ? "%" : "");
+                text = Math.Round(value, Math.Abs(value) > 9 ? 2 : 3) + "%";
             } else {
-                var pnl ="";
-                if ( value > 1000) {
+                if ( Math.Abs(value) >= 1000) {
                     text = "$"+Math.Abs(Math.Round(value, 0));
                 }
                 else {
