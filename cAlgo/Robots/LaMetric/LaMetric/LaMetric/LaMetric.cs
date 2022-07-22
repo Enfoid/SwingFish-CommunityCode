@@ -241,7 +241,7 @@ namespace cAlgo.Robots
                     text = "$"+Math.Abs(Math.Round(value, 0));
                 }
                 else {
-                    text = "$" + Math.Round(value, 2).ToString("0.00") ;
+                    text = "$" + Math.Round(Math.Abs(value), 2).ToString("0.00") ;
                 }
             }
             return new Frame(icon, text);
