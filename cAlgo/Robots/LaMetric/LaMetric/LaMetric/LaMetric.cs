@@ -31,6 +31,7 @@ namespace cAlgo.Robots
         Hourglass = 35196,
         Terminal = 315,
         Check = 234,
+        Chart = 1989,
         Null = 0,
     }
 
@@ -91,8 +92,16 @@ namespace cAlgo.Robots
         [Parameter("Always Show Margin", Group = "cTrader", DefaultValue = true)]
         public bool ShowMargin { get; set; }
 
+        [Parameter("Show Money", Group = "cTrader", DefaultValue = false)]
+        public bool ShowMoney { get; set; }
+
+        public double todayProfit;
+        public double todayProfitB;
+        public double unrealizedProfit;
+ 
         protected override void OnStart()
         {
+            Positions.Closed += PositionsOnClosed;
             if (DayStart == 0)
             {
                 DayStart = AccountBalanceAtTime(Time.Date);
@@ -112,18 +121,40 @@ namespace cAlgo.Robots
             UpdateLaMetric();
         }
 
-        protected override void OnTimer() { UpdateLaMetric(); }
+        protected override void OnTimer() { 
+            if (Positions.Count > 0)
+                // only use the timer if a position is active
+                UpdateLaMetric();
+        }
+
+        private void PositionsOnClosed(PositionClosedEventArgs args)
+        {
+            var position = args.Position;
+            // update when positions close (pypass the timer)
+            UpdateLaMetric();
+        }
 
         protected void UpdateLaMetric()
         {
             var frames = new Frames();
 
-            var todayProfit = Account.Equity / DayStart * 100 - 100;
-            var todayProfitB = Account.Balance / DayStart * 100 - 100;
-            var unrealizedProfit = Account.Equity / Account.Balance * 100 - 100;
+            if (ShowMoney) {
+                todayProfit = Account.Equity - DayStart;
+                todayProfitB = Account.Balance - DayStart;
+                unrealizedProfit = Account.Equity - Account.Balance;
 
-            if (WifeMode && (todayProfit < todayProfitB)) {
-                todayProfit = Account.Balance / DayStart * 100 - 100;
+                if (WifeMode && (todayProfit < todayProfitB)) {
+                    todayProfit = Account.Balance - DayStart;
+                }
+            }
+            else {
+                todayProfit = Account.Equity / DayStart * 100 - 100;
+                todayProfitB = Account.Balance / DayStart * 100 - 100;
+                unrealizedProfit = Account.Equity / Account.Balance * 100 - 100;
+
+                if (WifeMode && (todayProfit < todayProfitB)) {
+                    todayProfit = Account.Balance / DayStart * 100 - 100;
+                }
             }
 
             if (Positions.Count > 0)
@@ -132,7 +163,13 @@ namespace cAlgo.Robots
  //               frames.Add(GetTextFrame(Icon.Hourglass, "PnL"));
  //               frames.Add(GetValueFrame(unrealizedProfit, true));
  //               frames.Add(GetTextFrame(Icon.Hourglass, "PnL"));
-                frames.Add(GetValueFrame(unrealizedProfit, true));
+                if (ShowMoney) 
+                {
+                    frames.Add(GetValueFrame(unrealizedProfit, false));
+                }
+                else {
+                    frames.Add(GetValueFrame(unrealizedProfit, true));
+                }
                 // if (ShowPositions) 
                 // show buy/sell what
  //               frames.Add(GetTextFrame(Icon.Null, "Session"));
@@ -140,12 +177,26 @@ namespace cAlgo.Robots
             }
             else
             {
-                if (todayProfit >=0) {
-                    frames.Add(GetTextFrame(Icon.Arrows, "Session Profits"));
-                }else {
-                    frames.Add(GetTextFrame(Icon.Arrows, "Session Losses"));
+//                frames.Add(GetValueFrame(todayProfit, true));
+                if (todayProfit ==0) {
+                        frames.Add(GetTextFrame(Icon.Ctrader, "Ctrader"));
                 }
-                frames.Add(GetValueFrame(todayProfit, true));
+                else {
+                    if (ShowMoney) {
+                        if (todayProfit >0) {
+                            frames.Add(GetTextFrame(Icon.Ctrader, "$" + Math.Round(todayProfit, Math.Abs(todayProfit) > 1000 ? 0 : 3) + " Session Profit"));
+                        } else {
+                            frames.Add(GetTextFrame(Icon.Ctrader, "$" + Math.Round(todayProfit, Math.Abs(todayProfit) > 1000 ? 0 : 3) + " Session Loss"));
+                        }
+                    }
+                    else {
+                        if (todayProfit >0) {
+                            frames.Add(GetTextFrame(Icon.Ctrader, "+" + Math.Round(todayProfit,3) + "% Session Profit"));
+                        } else {
+                            frames.Add(GetTextFrame(Icon.Ctrader, Math.Round(todayProfit,3) + "% Session Loss"));
+                        }
+                    }
+                }
             }
 
             SendFramesAsync(frames);
@@ -178,18 +229,28 @@ namespace cAlgo.Robots
             return new Frame(icon, text);
         }
 
-        private static Frame GetValueFrame(double value, bool isPercentage = false)
+        protected static Frame GetValueFrame(double value, bool isPercentage = false)
         {
+            var text = "";
             var icon = value >= 0 ? Icon.GreenArrowMovingUp : Icon.RedArrowMovingDown;
-            var text = Math.Round(value, Math.Abs(value) > 9 ? 2 : 3) + (isPercentage ? "%" : "");
-
+            if (isPercentage) {
+                text = (isPercentage ? "" : "$") + Math.Round(value, Math.Abs(value) > 9 ? 2 : 3) + (isPercentage ? "%" : "");
+            } else {
+                var pnl ="";
+                if ( value > 1000) {
+                    text = "$"+Math.Abs(Math.Round(value, 0));
+                }
+                else {
+                    text = "$" + Math.Round(value, 2).ToString("0.00") ;
+                }
+            }
             return new Frame(icon, text);
         }
 
         protected override void OnStop()
         {
             // send logo to the clock
- //           SendFramesAsync(new Frames { new Frame(Icon.Ctrader, "cTrader") });
+            SendFramesAsync(new Frames { new Frame(Icon.Ctrader, "cTrader") });
         }
 
         private double AccountBalanceAtTime(DateTime dt)

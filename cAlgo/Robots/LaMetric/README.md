@@ -1,4 +1,4 @@
-0.24.2
+0.24.4
 LaMetric Time Integration for cTrader
 
 allows the cTrader to show Account & Position informations on the LaMetric Time
@@ -19,6 +19,10 @@ ToDo:
  - better app integration (getting auth to work can be "tricky" for some peoples)
 
 Changes:
+ - better Number format (small numbers/big numbers)
+ - some cosmetic updates
+ - reset display when positions being closed
+ - ignore timer when no position is on
  - fix SSL Error (using unsecured local net (for now))
    this doesn;t pose a problem since traffic is exclusively in the local network.
  - remove the word "Profit" on todays display
