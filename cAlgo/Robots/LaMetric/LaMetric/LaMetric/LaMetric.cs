@@ -1,4 +1,4 @@
-﻿using cAlgo.API;
+using cAlgo.API;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -107,6 +107,7 @@ namespace cAlgo.Robots
                 DayStart = AccountBalanceAtTime(Time.Date);
             }
 
+            // to fix SSL issues introduced in cTrader 4.3 with .Net 6
             ServicePointManager.Expect100Continue = false;
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;

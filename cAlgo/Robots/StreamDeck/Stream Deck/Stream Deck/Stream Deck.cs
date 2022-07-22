@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+using System.Drawing;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -29,17 +29,31 @@ namespace cAlgo
 //        public double ScaleQuantity { get; set; }
         public double ScaleQuantity = 0;
 
-        [Parameter("Default Button", DefaultValue = 0, MinValue = -1, MaxValue = 31, Step = 1)]
+        [Parameter("Accept ST Commands", Group = "StreamDeck", DefaultValue = true)]
+        public bool allowExecute { get; set; }
+
+        [Parameter("Default Button", Group = "StreamDeck", DefaultValue = 0, MinValue = -1, MaxValue = 31, Step = 1)]
         public int defaultButton { get; set; }
 
-        [Parameter("Show P/L", DefaultValue = false)]
+        [Parameter("Show P/L", Group = "StreamDeck", DefaultValue = false)]
         public bool showPL { get; set; }
 
-        [Parameter("Play Sound", DefaultValue = true)]
+
+        [Parameter("Default SL", Group = "cTrader", DefaultValue = 34)]
+        public int defaultSL { get; set; }
+
+        [Parameter("Play Sound", Group = "cTrader", DefaultValue = true)]
         public bool playSounds { get; set; }
 
-        [Parameter("Accept ST Commands", DefaultValue = true)]
-        public bool allowExecute { get; set; }
+
+        [Parameter("use LaMetric", Group = "LaMetric", DefaultValue = false)]
+        public bool useLametric { get; set; }
+
+        [Parameter("Push URL", Group = "LaMetric", DefaultValue = "https://developer.lametric.com/applications/list")]
+        public string Url { get; set; }
+
+        [Parameter("Access Token", Group = "LaMetric", DefaultValue = "https://developer.lametric.com/applications/list")]
+        public string AccessToken { get; set; }
 
         private UdpClient _client;
         private IStreamDeckBoard _deck;
@@ -48,6 +62,11 @@ namespace cAlgo
         private readonly List<Symbol> _symbols = new List<Symbol>();
         protected override void OnStart()
         {
+
+            ServicePointManager.Expect100Continue = false;
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+            ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+
             _client = new UdpClient();
             _client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             _client.Client.Bind(new IPEndPoint(IPAddress.Any, 1337));
@@ -124,7 +143,7 @@ namespace cAlgo
                     {
                         closeAllOrder();
                         Print("CancelPending");
-                        sendImage(defaultButton, "Del\nPend");
+                        sendImage(defaultButton, "LIMITs\n  OFF");
                         if (playSounds)
                         {
                             Say2("Limits Off");
@@ -136,7 +155,7 @@ namespace cAlgo
                         closeAllPosition();
                         closeAllOrder();
                         Print("CloseAll");
-                        sendImage(defaultButton, "Closing");
+                        sendImage(defaultButton, "CLOSE\n  ALL");
                         if (playSounds)
                         {
                             Say2("Close All");
@@ -147,7 +166,7 @@ namespace cAlgo
                     {
                         closeAllBuyPosition();
                         Print("CloseBuy");
-                        sendImage(defaultButton, "Close\nBuy");
+                        sendImage(defaultButton, "CLOSE\n BUY");
                         if (playSounds)
                         {
                             Say2("Close Buys");
@@ -158,7 +177,7 @@ namespace cAlgo
                     {
                         closeAllSellPosition();
                         Print("CloseSell");
-                        sendImage(defaultButton, "Close\nSell");
+                        sendImage(defaultButton, "CLOSE\n SELL");
                         if (playSounds)
                         {
                             Say2("Close Sells");
@@ -168,7 +187,7 @@ namespace cAlgo
                     if (command == "RemoveTPSL")
                     {
                         Print("RemoveTPSL");
-                        sendImage(defaultButton, "- TP\n -SL");
+                        sendImage(defaultButton, "STOPs\n  OFF");
 
                         var symbols = new Dictionary<string, Symbol>();
                         foreach (var pos in Positions)
@@ -393,7 +412,7 @@ if (command == "ScaleIn")
 
                         if (playSounds)
                         {
-                            Say2("Scaling times " + commandSize);
+                            Say2("Scaling " + commandSize);
                         }
                     }
                     if (command == "Tsl")
@@ -431,6 +450,7 @@ if (command == "ScaleIn")
                         if (playSounds)
                         {
                             Say2("T " + Tsl);
+                            sendImage(defaultButton, "   TSL\n  - " + Tsl);
                         }
                     }
 
@@ -469,6 +489,7 @@ if (command == "ScaleIn")
                         if (playSounds)
                         {
                             Say2("S " + Tsl);
+                            sendImage(defaultButton, "    SL\n  - " + Tsl);
                         }
                     }
                     /*
@@ -530,19 +551,19 @@ foreach (var pos in Positions)
                             if (buyVolume > sellVolume)
                             {
                                 // opens buy order equal to the difference of volumes
-                                ExecuteMarketOrderAsync(TradeType.Buy, GetSymbol(symbolCode), GetSymbol(symbolCode).NormalizeVolumeInUnits(buyVolume * (ScaleQuantity / 100)), "StreamDeck", 0, 0, null, "Scale %");
+                                ExecuteMarketOrderAsync(TradeType.Buy, GetSymbol(symbolCode), GetSymbol(symbolCode).NormalizeVolumeInUnits(buyVolume * (ScaleQuantity / 100)), "StreamDeck", defaultSL, 0, null, "Scale %");
 
                             }
                             else
                             {
                                 // opens buy order equal to the difference of volumes
-                                ExecuteMarketOrderAsync(TradeType.Sell, GetSymbol(symbolCode), GetSymbol(symbolCode).NormalizeVolumeInUnits(sellVolume * (ScaleQuantity / 100)), "StreamDeck", 0, 0, null, "Scale %");
+                                ExecuteMarketOrderAsync(TradeType.Sell, GetSymbol(symbolCode), GetSymbol(symbolCode).NormalizeVolumeInUnits(sellVolume * (ScaleQuantity / 100)), "StreamDeck", defaultSL, 0, null, "Scale %");
                             }
                         }
 
                         if (playSounds)
                         {
-                            Say2("Scale in  " + commandSize);
+                            Say2("Scale " + commandSize);
                         }
                     }
 

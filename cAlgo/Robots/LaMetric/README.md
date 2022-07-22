@@ -19,6 +19,7 @@ ToDo:
  - better app integration (getting auth to work can be "tricky" for some peoples)
 
 Changes:
+ - fix ssl issue with cTrader 4.3 on .Net 6
  - better Number format (small numbers/big numbers)
  - some cosmetic updates
  - reset display when positions being closed
