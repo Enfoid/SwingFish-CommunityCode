@@ -1,4 +1,4 @@
-using cAlgo.API;
+﻿using cAlgo.API;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +32,7 @@ namespace cAlgo.Robots
         Terminal = 315,
         Check = 234,
         Chart = 1989,
+        Chart2 = 37231,
         Null = 0,
     }
 
@@ -85,6 +86,9 @@ namespace cAlgo.Robots
 
         [Parameter("Wife Mode (Auto select Balance/Equity) for Today", Group = "cTrader", DefaultValue = true)]
         public bool WifeMode { get; set; }
+
+        [Parameter("show Todays PnL", Group = "cTrader", DefaultValue = true)]
+        public bool TodayPnL { get; set; }
 
         [Parameter("Margin Warning Level", Group = "cTrader", DefaultValue = 3000)]
         public int MarginWarning { get; set; }
@@ -176,30 +180,30 @@ namespace cAlgo.Robots
  //               frames.Add(GetTextFrame(Icon.Null, "Session"));
  //               frames.Add(GetValueFrame(todayProfit, true));
             }
-            else
-            {
-//                frames.Add(GetValueFrame(todayProfit, true));
-                if (todayProfit ==0) {
-                        frames.Add(GetTextFrame(Icon.Ctrader, "Ctrader"));
+
+//          frames.Add(GetValueFrame(todayProfit, true));
+            if (((TodayPnL==true)&&(Positions.Count!=0))||(Positions.Count==0)) {
+            
+            if (todayProfit ==0) {
+                frames.Add(GetTextFrame(Icon.Ctrader, "Ctrader"));
+            }
+            else {
+                if (ShowMoney) {
+                    if (todayProfit >0) {
+                        frames.Add(GetTextFrame(Icon.Ctrader, "$" + Math.Round(todayProfit, Math.Abs(todayProfit) > 1000 ? 0 : 3) + " Session Profit"));
+                    } else {
+                        frames.Add(GetTextFrame(Icon.Ctrader, "$" + Math.Round(todayProfit, Math.Abs(todayProfit) > 1000 ? 0 : 3) + " Session Loss"));
+                    }
                 }
                 else {
-                    if (ShowMoney) {
-                        if (todayProfit >0) {
-                            frames.Add(GetTextFrame(Icon.Ctrader, "$" + Math.Round(todayProfit, Math.Abs(todayProfit) > 1000 ? 0 : 3) + " Session Profit"));
-                        } else {
-                            frames.Add(GetTextFrame(Icon.Ctrader, "$" + Math.Round(todayProfit, Math.Abs(todayProfit) > 1000 ? 0 : 3) + " Session Loss"));
-                        }
-                    }
-                    else {
-                        if (todayProfit >0) {
-                            frames.Add(GetTextFrame(Icon.Ctrader, "+" + Math.Round(todayProfit,3) + "% Session Profit"));
-                        } else {
-                            frames.Add(GetTextFrame(Icon.Ctrader, Math.Round(todayProfit,3) + "% Session Loss"));
-                        }
+                    if (todayProfit >0) {
+                        frames.Add(GetTextFrame(Icon.Ctrader, Math.Round(todayProfit, Math.Abs(todayProfit) > 1 ? 2 : 3) + "% Session Profit"));
+                    } else {
+                        frames.Add(GetTextFrame(Icon.Ctrader, Math.Round(todayProfit, Math.Abs(todayProfit) > 1 ? 2 : 3) + "% Session Loss"));
                     }
                 }
             }
-
+            }
             SendFramesAsync(frames);
         }
 
@@ -235,13 +239,21 @@ namespace cAlgo.Robots
             var text = "";
             var icon = value >= 0 ? Icon.GreenArrowMovingUp : Icon.RedArrowMovingDown;
             if (isPercentage) {
-                text = Math.Round(value, Math.Abs(value) > 9 ? 2 : 3) + "%";
+                if ((value < 0.008) && (value > -0.008)) {
+                    icon = Icon.Chart2;
+                }
+                if ( Math.Abs(value) >= 1) {
+                    text = Math.Round(Math.Abs(value), 2).ToString("0.00") + "%";
+                }
+                else {
+                    text = Math.Round(Math.Abs(value), 3).ToString("0.000") + "%";
+                }
             } else {
                 if ( Math.Abs(value) >= 1000) {
                     text = "$"+Math.Abs(Math.Round(value, 0));
                 }
                 else {
-                    text = "$" + Math.Round(Math.Abs(value), 2).ToString("0.00") ;
+                    text = "$" + Math.Round(Math.Abs(value), 2).ToString("0.00");
                 }
             }
             return new Frame(icon, text);

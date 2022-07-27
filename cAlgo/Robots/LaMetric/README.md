@@ -1,4 +1,4 @@
-0.24.4
+0.24.41
 LaMetric Time Integration for cTrader
 
 allows the cTrader to show Account & Position informations on the LaMetric Time
@@ -19,6 +19,8 @@ ToDo:
  - better app integration (getting auth to work can be "tricky" for some peoples)
 
 Changes:
+ - fix for wife mode & individual positions
+   (will be replaced with better version and just 2 settings)
  - fix ssl issue with cTrader 4.3 on .Net 6
  - better Number format (small numbers/big numbers)
  - some cosmetic updates
