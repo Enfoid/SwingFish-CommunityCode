@@ -7,6 +7,7 @@ displays realtime Risk for the next position based on Drawdown Limits for Prop a
 
 ToDO / Issues
 - Indices have wrong calculations (about 10x)
+- indicator does not reset when positions closed - need to reload the template to reset
 
 Change log:
 - add active Risk/reward ratio (RR)
