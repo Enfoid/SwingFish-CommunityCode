@@ -5,6 +5,9 @@ Details https://swingfish.trade/mt4-indicator-prop-risk
 
 displays realtime Risk for the next position based on Drawdown Limits for Prop accounts.
 
+ToDO / Issues
+- Indices have wrong calculations (about 10x)
+
 Change log:
 - add active Risk/reward ratio (RR)
 - replace "P/L" with "Open Risk" (shows the current exposure from open positions)
