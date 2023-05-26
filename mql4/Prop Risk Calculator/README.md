@@ -1,4 +1,4 @@
-0.98
+0.98.1
 SwingFish Prop Risk Indicator
  
 Details https://swingfish.trade/mt4-indicator-prop-risk
