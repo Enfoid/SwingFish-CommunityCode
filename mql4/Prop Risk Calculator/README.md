@@ -1,4 +1,4 @@
-0.97.2
+0.98
 SwingFish Prop Risk Indicator
  
 Details https://swingfish.trade/mt4-indicator-prop-risk
@@ -15,6 +15,7 @@ Known Bugs
 
 
 Change log:
+- added Risk-reward to show when position in profit
 - removed Currency Symbol for display
 - removed "hide all" (just unload the indicator instead)
 - remove "Hide_all" setting
