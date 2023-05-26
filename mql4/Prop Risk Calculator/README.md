@@ -6,12 +6,11 @@ Details https://swingfish.trade/mt4-indicator-prop-risk
 displays realtime Risk for the next position based on Drawdown Limits for Prop accounts.
 
 ToDo / Issues
-- Indices have wrong calculations (about 10x)
-- indicator does not reset when positions closed - need to reload the template to reset
 - remove nonsense and rename Fields
 
 Known Bugs
 - items do not reset after all positions closed (requires to reload the indicator or change the symbol to make it work again)
+- Indices have wrong calculations (about 10x)
 
 
 Change log:
