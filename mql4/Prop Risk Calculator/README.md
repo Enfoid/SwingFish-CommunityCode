@@ -5,7 +5,7 @@ Details https://swingfish.trade/mt4-indicator-prop-risk
 
 displays realtime Risk for the next position based on Drawdown Limits for Prop accounts.
 
-ToDo / Issues
+ToDo
 - remove nonsense and rename Fields
 
 Known Bugs
