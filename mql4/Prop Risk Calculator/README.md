@@ -1,4 +1,4 @@
-0.98.2
+0.98.3
 SwingFish Prop Risk Indicator
  
 Details https://swingfish.trade/mt4-indicator-prop-risk
@@ -9,11 +9,13 @@ ToDo
 - remove nonsense and rename Fields
 
 Known Bugs
-- items do not reset after all positions closed (requires to reload the indicator or change the symbol to make it work again)
+- when indicator is loaded during startup of MT4 it doesn't initialize properly
+  Workaround: change the symbol or re-load the template 
 - Indices have wrong calculations (about 10x)
 
 
 Change log:
+- fix item reset
 - added colors to indicate different risk status
 - added Risk-reward to show when position in profit
 - removed Currency Symbol for display
