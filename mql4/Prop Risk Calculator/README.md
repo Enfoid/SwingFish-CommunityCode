@@ -1,4 +1,4 @@
-0.98.3
+0.98.6
 SwingFish Prop Risk Indicator
  
 Details https://swingfish.trade/mt4-indicator-prop-risk
@@ -15,6 +15,7 @@ Known Bugs
 
 
 Change log:
+- add Risk on open positions next to RR value
 - fix item reset
 - added colors to indicate different risk status
 - added Risk-reward to show when position in profit
